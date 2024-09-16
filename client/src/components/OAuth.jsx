@@ -38,7 +38,11 @@ function OAuth() {
       const data = await res.json();
 
       // Dispatching the Redux action to update the state
-      dispatch(signInSuccess(data));
+      dispatch(signInSuccess({
+        ...data,
+        avatar: user.photoURL || defaultAvatarUrl // Ensure avatar is set
+      }));
+      
       navigate('/'); // Correct usage of dispatch here
 
     } catch (err) {
