@@ -1,62 +1,79 @@
-import { errorHandler } from "../utils/error.js";
 import bcryptjs from 'bcryptjs';
 import User from '../models/user.model.js';
+import { errorHandler } from '../utils/error.js';
+import Listing from '../models/listing.model.js';
 
-// Test Route
 export const test = (req, res) => {
   res.json({
-    message: "API route is working",
+    message: 'Api route is working!',
   });
 };
 
-// Update User
-export const updateuser = async (req, res, next) => {
-  if (req.user.id !== req.params.id) {
-    return next(errorHandler(401, 'You can only update your own account'));
-  }
-
+export const updateUser = async (req, res, next) => {
+  if (req.user.id !== req.params.id)
+    return next(errorHandler(401, 'You can only update your own account!'));
   try {
-    // If password is provided, hash it
     if (req.body.password) {
       req.body.password = bcryptjs.hashSync(req.body.password, 10);
     }
 
-    // Find user by ID and update
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
       {
         $set: {
-          username: req.body.username, // Assuming username comes from req.body.username
-          password: req.body.password, // Password only updates if it's in the request
-          avatar: req.body.avatar,     // Avatar is optional and can be updated if provided
+          username: req.body.username,
+          email: req.body.email,
+          password: req.body.password,
+          avatar: req.body.avatar,
         },
       },
-      { new: true } // Return the updated document
+      { new: true }
     );
 
-    // If user is not found, handle the error
-    if (!updatedUser) {
-      return next(errorHandler(404, 'User not found'));
-    }
-
-    // Exclude the password field from the response
     const { password, ...rest } = updatedUser._doc;
 
-    // Send the updated user data
     res.status(200).json(rest);
-  } catch (err) {
-    next(err); // Catch any error and pass it to error handling middleware
+  } catch (error) {
+    next(error);
   }
 };
 
-export const deleteuser = async (req, res, next) => {
-    if (req.user.id !== req.params.id)
-      return next(errorHandler(401, 'You can only delete your own account!'));
+export const deleteUser = async (req, res, next) => {
+  if (req.user.id !== req.params.id)
+    return next(errorHandler(401, 'You can only delete your own account!'));
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    res.clearCookie('access_token');
+    res.status(200).json('User has been deleted!');
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getUserListings = async (req, res, next) => {
+  if (req.user.id === req.params.id) {
     try {
-      await User.findByIdAndDelete(req.params.id);
-      res.clearCookie('access_token');
-      res.status(200).json('User has been deleted!');
+      const listings = await Listing.find({ userRef: req.params.id });
+      res.status(200).json(listings);
     } catch (error) {
       next(error);
     }
-  };
+  } else {
+    return next(errorHandler(401, 'You can only view your own listings!'));
+  }
+};
+
+export const getUser = async (req, res, next) => {
+  try {
+    
+    const user = await User.findById(req.params.id);
+  
+    if (!user) return next(errorHandler(404, 'User not found!'));
+  
+    const { password: pass, ...rest } = user._doc;
+  
+    res.status(200).json(rest);
+  } catch (error) {
+    next(error);
+  }
+};
