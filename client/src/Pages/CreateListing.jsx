@@ -363,7 +363,7 @@ export default function CreateListing() {
           >
             {loading ? 'Creating...' : 'Create listing'}
           </button>
-          {error && <p className='text-red-700 text-sm'>{error}</p>}
+          {error && <p className='text-red-700 text-sm' >{error}</p>}
         </div>
       </form>
     </main>
