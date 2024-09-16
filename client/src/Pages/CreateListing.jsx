@@ -9,7 +9,7 @@ import { app } from '../firebase';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-export default function CreateListing() {
+export default function createListing() {
   const { currentUser } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const [files, setFiles] = useState([]);
@@ -363,7 +363,7 @@ export default function CreateListing() {
           >
             {loading ? 'Creating...' : 'Create listing'}
           </button>
-          {error && <p className='text-red-700 text-sm' >{error}</p>}
+          {error && <p className='text-red-700 text-sm'>{error}</p>}
         </div>
       </form>
     </main>
