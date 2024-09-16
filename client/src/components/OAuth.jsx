@@ -40,7 +40,7 @@ function OAuth() {
       // Dispatching the Redux action to update the state
       dispatch(signInSuccess({
         ...data,
-        avatar: user.photoURL || defaultAvatarUrl // Ensure avatar is set
+        avatar: result.user.photoURL || defaultAvatarUrl // Ensure avatar is set
       }));
       
       navigate('/'); // Correct usage of dispatch here
